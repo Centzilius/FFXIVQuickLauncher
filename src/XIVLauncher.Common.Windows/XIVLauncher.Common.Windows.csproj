@@ -29,6 +29,14 @@
         <Content Include="steam_api.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <None Remove="libsteam_api.so" />
+        <Content Include="libsteam_api.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <None Remove="libsteam_api64.so" />
+        <Content Include="libsteam_api64.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
