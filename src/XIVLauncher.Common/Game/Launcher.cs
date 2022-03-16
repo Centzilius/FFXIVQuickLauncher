@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -22,6 +23,7 @@ namespace XIVLauncher.Common.Game
         private readonly IUniqueIdCache uniqueIdCache;
         private readonly ISettings settings;
         private readonly HttpClient client;
+        private readonly HttpClient client2;
 
         public Launcher(ISteam steam, IUniqueIdCache uniqueIdCache, ISettings settings)
         {
@@ -32,9 +34,19 @@ namespace XIVLauncher.Common.Game
             ServicePointManager.Expect100Continue = false;
             var handler = new HttpClientHandler
             {
+                UseCookies = false
+            };
+            var sslOptions = new SslClientAuthenticationOptions()
+            {
+                CipherSuitesPolicy = new CipherSuitesPolicy(new[] { TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 })
+            };
+            var handler2 = new SocketsHttpHandler
+            {
                 UseCookies = false,
+                SslOptions = sslOptions,
             };
             this.client = new HttpClient(handler);
+            this.client2 = new HttpClient(handler2);
         }
 
         // The user agent for frontier pages. {0} has to be replaced by a unique computer id and its checksum
@@ -295,7 +307,7 @@ namespace XIVLauncher.Common.Game
 
             request.Content = new StringContent(GetVersionReport(gamePath, loginResult.MaxExpansion, forceBaseVersion));
 
-            var resp = await this.client.SendAsync(request);
+            var resp = await this.client2.SendAsync(request);
             var text = await resp.Content.ReadAsStringAsync();
 
             // Conflict indicates that boot needs to update, we do not get a patch list or a unique ID to download patches with in this case
