@@ -54,8 +54,17 @@ public class MainPage : Page
     {
         if (action == LoginAction.Fake)
         {
-            Program.Launcher.LaunchGame(new WindowsGameRunner(null, false, DalamudLoadMethod.DllInject), "0", 1, 2, false, "", Program.Config.GamePath, true, ClientLanguage.Japanese, true,
-                DpiAwareness.Unaware);
+            if (OperatingSystem.IsWindows())
+            {
+                Program.Launcher.LaunchGame(new WindowsGameRunner(null, false, DalamudLoadMethod.DllInject), "0", 1, 2, false, "", Program.Config.GamePath, true, ClientLanguage.Japanese, true,
+                    DpiAwareness.Unaware);
+            }
+            else
+            {
+                Program.Launcher.LaunchGame(new WineGameRunner(null, false, DalamudLoadMethod.DllInject), "0", 1, 2, false, "", Program.Config.GamePath, true, ClientLanguage.Japanese, true,
+                    DpiAwareness.Unaware);
+            }
+
             return;
         }
 
@@ -85,7 +94,7 @@ public class MainPage : Page
         }
         else
         {
-            throw new NotImplementedException();
+            runner = new WineGameRunner(null, false, Program.Config.DalamudLoadMethod ?? DalamudLoadMethod.DllInject);
         }
 
         Program.Launcher.LaunchGame(runner, loginResult.UniqueId, loginResult.OauthLogin.Region, loginResult.OauthLogin.MaxExpansion, this.loginFrame.IsSteam, Program.Config.AdditionalArgs,
